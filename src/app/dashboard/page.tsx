@@ -460,9 +460,9 @@ export default function DashboardPage() {
                           +91 {c.mobile} • {c.email}
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-neutral-200 font-medium">{c.position}</td>
-                      <td className="py-3.5 px-4">
-                        <span className="text-[10px] text-neutral-300 bg-white/[0.06] px-2.5 py-1 rounded-full border border-white/[0.08]">
+                      <td className="py-3.5 px-4 text-neutral-200 font-medium whitespace-nowrap">{c.position}</td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <span className="text-[10px] text-neutral-300 bg-white/[0.06] px-2.5 py-1 rounded-full border border-white/[0.08] inline-flex items-center whitespace-nowrap">
                           {c.source}
                         </span>
                       </td>
@@ -493,7 +493,7 @@ export default function DashboardPage() {
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span
-                          className={`text-[10px] font-bold px-3 py-1 rounded-full border tracking-wide uppercase font-mono ${
+                          className={`text-[10px] font-bold px-3 py-1 rounded-full border tracking-wide uppercase font-mono inline-flex items-center whitespace-nowrap ${
                             statusBadgeColor[c.status] || 'bg-white/5 text-neutral-400'
                           }`}
                         >
