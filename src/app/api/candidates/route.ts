@@ -208,7 +208,7 @@ export async function POST(req: NextRequest) {
 
         // Save individual camera pages and collect buffers
         for (const page of pages) {
-          const base64Data = page.dataUrl.replace(/^data:image\/\w+;base64,/, '');
+          const base64Data = page.dataUrl.includes('base64,') ? page.dataUrl.split('base64,')[1].trim() : page.dataUrl.trim();
           const buffer = Buffer.from(base64Data, 'base64');
           const mimeType = page.dataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
 
@@ -232,23 +232,27 @@ export async function POST(req: NextRequest) {
           imageBuffers.push({ buffer, mimeType });
         }
 
-        // Combine into one PDF
-        const pdfBuffer = await mergeImagesToPdf(imageBuffers);
-        const savedPdf = saveBuffer(pdfBuffer, `${candidateId}-scanned-resume.pdf`, 'application/pdf');
+        // Combine into one PDF safely
+        try {
+          const pdfBuffer = await mergeImagesToPdf(imageBuffers);
+          const savedPdf = saveBuffer(pdfBuffer, `${candidateId}-scanned-resume.pdf`, 'application/pdf');
 
-        await prisma.candidateFile.create({
-          data: {
-            candidateId: candidate.id,
-            fileType: 'SCANNED_DOC',
-            storagePath: savedPdf.storagePath,
-            fileName: `${candidateId}-scanned-resume.pdf`,
-            mimeType: 'application/pdf',
-            fileSize: savedPdf.fileSize,
-            uploadedById: user.id,
-            virusScanStatus: 'CLEAN',
-            fileData: pdfBuffer,
-          },
-        });
+          await prisma.candidateFile.create({
+            data: {
+              candidateId: candidate.id,
+              fileType: 'SCANNED_DOC',
+              storagePath: savedPdf.storagePath,
+              fileName: `${candidateId}-scanned-resume.pdf`,
+              mimeType: 'application/pdf',
+              fileSize: savedPdf.fileSize,
+              uploadedById: user.id,
+              virusScanStatus: 'CLEAN',
+              fileData: pdfBuffer,
+            },
+          });
+        } catch (pdfErr) {
+          console.warn('Failed to generate merged PDF from snapshots:', pdfErr);
+        }
       }
     }
 

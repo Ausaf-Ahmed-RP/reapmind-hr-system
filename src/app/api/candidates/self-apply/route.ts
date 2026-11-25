@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
       if (pages.length > 0) {
         const imageBuffers: { buffer: Buffer; mimeType: string }[] = [];
         for (const page of pages) {
-          const base64Data = page.dataUrl.replace(/^data:image\/\w+;base64,/, '');
+          const base64Data = page.dataUrl.includes('base64,') ? page.dataUrl.split('base64,')[1].trim() : page.dataUrl.trim();
           const buffer = Buffer.from(base64Data, 'base64');
           const mimeType = page.dataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
           const savedPage = saveBuffer(buffer, `snapshot-page-${page.pageNumber}.jpg`, mimeType);
@@ -122,20 +122,24 @@ export async function POST(req: NextRequest) {
           });
           imageBuffers.push({ buffer, mimeType });
         }
-        const pdfBuffer = await mergeImagesToPdf(imageBuffers);
-        const savedPdf = saveBuffer(pdfBuffer, `${candidateId}-scanned-resume.pdf`, 'application/pdf');
-        await prisma.candidateFile.create({
-          data: {
-            candidateId: candidate.id,
-            fileType: 'SCANNED_DOC',
-            storagePath: savedPdf.storagePath,
-            fileName: `${candidateId}-scanned-resume.pdf`,
-            mimeType: 'application/pdf',
-            fileSize: savedPdf.fileSize,
-            uploadedById: defaultUploader.id,
-            fileData: pdfBuffer,
-          },
-        });
+        try {
+          const pdfBuffer = await mergeImagesToPdf(imageBuffers);
+          const savedPdf = saveBuffer(pdfBuffer, `${candidateId}-scanned-resume.pdf`, 'application/pdf');
+          await prisma.candidateFile.create({
+            data: {
+              candidateId: candidate.id,
+              fileType: 'SCANNED_DOC',
+              storagePath: savedPdf.storagePath,
+              fileName: `${candidateId}-scanned-resume.pdf`,
+              mimeType: 'application/pdf',
+              fileSize: savedPdf.fileSize,
+              uploadedById: defaultUploader.id,
+              fileData: pdfBuffer,
+            },
+          });
+        } catch (pdfErr) {
+          console.warn('Failed to generate merged PDF from snapshots:', pdfErr);
+        }
       }
     }
 
