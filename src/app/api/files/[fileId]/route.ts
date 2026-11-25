@@ -26,8 +26,15 @@ export async function GET(req: NextRequest, { params }: { params: { fileId: stri
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const filePath = getAbsoluteFilePath(file.storagePath);
-  if (!fs.existsSync(filePath)) {
+  let fileBuffer: Buffer | null = file.fileData ? Buffer.from(file.fileData) : null;
+  if (!fileBuffer) {
+    const filePath = getAbsoluteFilePath(file.storagePath);
+    if (fs.existsSync(filePath)) {
+      fileBuffer = fs.readFileSync(filePath);
+    }
+  }
+
+  if (!fileBuffer) {
     return NextResponse.json({ error: 'File content missing on server' }, { status: 404 });
   }
 
@@ -47,8 +54,6 @@ export async function GET(req: NextRequest, { params }: { params: { fileId: stri
     ipAddress: ip,
   });
 
-  const fileBuffer = fs.readFileSync(filePath);
-
   const headers = new Headers();
   headers.set('Content-Type', file.mimeType);
   headers.set('Content-Length', fileBuffer.length.toString());
@@ -59,5 +64,5 @@ export async function GET(req: NextRequest, { params }: { params: { fileId: stri
     headers.set('Content-Disposition', `inline; filename="${encodeURIComponent(file.fileName)}"`);
   }
 
-  return new NextResponse(fileBuffer, { headers });
+  return new NextResponse(new Uint8Array(fileBuffer), { status: 200, headers });
 }

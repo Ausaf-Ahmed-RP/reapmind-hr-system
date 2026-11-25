@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
           fileSize: saved.fileSize,
           uploadedById: defaultUploader.id,
           virusScanStatus: 'CLEAN',
+          fileData: saved.buffer,
         },
       });
     } else if (cameraPagesJson) {
@@ -114,6 +115,7 @@ export async function POST(req: NextRequest) {
               fileSize: savedPage.fileSize,
               pageNumber: page.pageNumber,
               uploadedById: defaultUploader.id,
+              fileData: buffer,
             },
           });
           imageBuffers.push({ buffer, mimeType });
@@ -129,6 +131,7 @@ export async function POST(req: NextRequest) {
             mimeType: 'application/pdf',
             fileSize: savedPdf.fileSize,
             uploadedById: defaultUploader.id,
+            fileData: pdfBuffer,
           },
         });
       }

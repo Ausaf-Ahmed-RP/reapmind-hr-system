@@ -17,6 +17,19 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       uploadedBy: { select: { id: true, name: true, email: true, role: true } },
       assignedTo: { select: { id: true, name: true, email: true, role: true } },
       files: {
+        select: {
+          id: true,
+          candidateId: true,
+          fileType: true,
+          storagePath: true,
+          fileName: true,
+          mimeType: true,
+          fileSize: true,
+          pageNumber: true,
+          uploadedById: true,
+          virusScanStatus: true,
+          createdAt: true,
+        },
         orderBy: [{ fileType: 'desc' }, { pageNumber: 'asc' }],
       },
       assignments: {

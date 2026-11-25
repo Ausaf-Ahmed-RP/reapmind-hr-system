@@ -194,6 +194,7 @@ export async function POST(req: NextRequest) {
           fileSize: saved.fileSize,
           uploadedById: user.id,
           virusScanStatus: 'CLEAN',
+          fileData: saved.buffer,
         },
       });
     } else if (cameraPagesJson) {
@@ -222,6 +223,7 @@ export async function POST(req: NextRequest) {
               pageNumber: page.pageNumber,
               uploadedById: user.id,
               virusScanStatus: 'CLEAN',
+              fileData: buffer,
             },
           });
 
@@ -242,6 +244,7 @@ export async function POST(req: NextRequest) {
             fileSize: savedPdf.fileSize,
             uploadedById: user.id,
             virusScanStatus: 'CLEAN',
+            fileData: pdfBuffer,
           },
         });
       }

@@ -20,6 +20,7 @@ export interface SavedFile {
   fileName: string;
   mimeType: string;
   fileSize: number;
+  buffer: Buffer;
 }
 
 export async function saveUploadedFile(file: File, subDir: string = 'resumes'): Promise<SavedFile> {
@@ -30,7 +31,12 @@ export async function saveUploadedFile(file: File, subDir: string = 'resumes'): 
 
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
-  fs.writeFileSync(fullPath, buffer);
+  try {
+    fs.writeFileSync(fullPath, buffer);
+  } catch (err) {
+    // If local fs fails on restricted serverless environment, in-memory buffer still persists to database
+    console.warn('Could not write file to local disk:', err);
+  }
 
   const relativePath = path.join(subDir, randomName).replace(/\\/g, '/');
 
@@ -39,6 +45,7 @@ export async function saveUploadedFile(file: File, subDir: string = 'resumes'): 
     fileName: file.name,
     mimeType: file.type || 'application/octet-stream',
     fileSize: buffer.length,
+    buffer,
   };
 }
 
@@ -48,7 +55,11 @@ export function saveBuffer(buffer: Buffer, originalName: string, mimeType: strin
   const randomName = `${crypto.randomUUID()}${ext}`;
   const fullPath = path.join(dir, randomName);
 
-  fs.writeFileSync(fullPath, buffer);
+  try {
+    fs.writeFileSync(fullPath, buffer);
+  } catch (err) {
+    console.warn('Could not write buffer to local disk:', err);
+  }
   const relativePath = path.join(subDir, randomName).replace(/\\/g, '/');
 
   return {
@@ -56,6 +67,7 @@ export function saveBuffer(buffer: Buffer, originalName: string, mimeType: strin
     fileName: originalName,
     mimeType,
     fileSize: buffer.length,
+    buffer,
   };
 }
 

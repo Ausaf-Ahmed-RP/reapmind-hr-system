@@ -69,6 +69,7 @@ model CandidateFile {
   pageNumber      Int?
   uploadedById    String
   virusScanStatus String    @default("CLEAN")
+  fileData        Bytes?
   createdAt       DateTime  @default(now())
 }
 
