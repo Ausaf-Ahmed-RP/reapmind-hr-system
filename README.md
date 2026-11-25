@@ -38,24 +38,6 @@ Developed for **ReapMind Innovations Pvt. Ltd., Kolhapur** according to Software
    - Master list manager (positions, sources, statuses, rounds).
    - Append-only audit log tracking every login, resume view, download, assignment, and status change.
 
----
-
-## 🔐 Demo User Accounts (Seeded)
-
-All demo accounts share the default password: `Password@123`
-
-| Role | Name | Email | Default Password |
-| :--- | :--- | :--- | :--- |
-| **Front Desk** | Front Desk Executive | `frontdesk@reapmind.com` | `Password@123` |
-| **HR** | Aayushi | `aayushi@reapmind.com` | `Password@123` |
-| **HR** | Hema | `hema@reapmind.com` | `Password@123` |
-| **HR** | Mahwash | `mahwash@reapmind.com` | `Password@123` |
-| **HR** | HR Lead | `hrlead@reapmind.com` | `Password@123` |
-| **Director** | Aroof (Director) | `aroof@reapmind.com` | `Password@123` |
-| **CEO** | CEO | `ceo@reapmind.com` | `Password@123` |
-| **Admin** | System Admin | `admin@reapmind.com` | `Password@123` |
-
----
 
 ## 🛠️ How to Run Locally
 
