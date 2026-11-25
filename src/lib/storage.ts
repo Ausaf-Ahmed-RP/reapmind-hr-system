@@ -1,12 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import os from 'os';
 
-const UPLOAD_BASE = process.env.STORAGE_DIR || './uploads';
+const UPLOAD_BASE = process.env.STORAGE_DIR || (process.env.VERCEL ? path.join(os.tmpdir(), 'uploads') : './uploads');
 
 // Ensure directory exists
 export function ensureUploadDir(subDir: string = 'resumes') {
-  const targetDir = path.resolve(process.cwd(), UPLOAD_BASE, subDir);
+  const base = path.isAbsolute(UPLOAD_BASE) ? UPLOAD_BASE : path.resolve(process.cwd(), UPLOAD_BASE);
+  const targetDir = path.join(base, subDir);
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
   }
@@ -58,5 +60,6 @@ export function saveBuffer(buffer: Buffer, originalName: string, mimeType: strin
 }
 
 export function getAbsoluteFilePath(storagePath: string): string {
-  return path.resolve(process.cwd(), UPLOAD_BASE, storagePath);
+  const base = path.isAbsolute(UPLOAD_BASE) ? UPLOAD_BASE : path.resolve(process.cwd(), UPLOAD_BASE);
+  return path.join(base, storagePath);
 }
