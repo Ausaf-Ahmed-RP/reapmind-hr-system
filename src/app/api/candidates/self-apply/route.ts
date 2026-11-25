@@ -96,7 +96,9 @@ export async function POST(req: NextRequest) {
           fileData: saved.buffer,
         },
       });
-    } else if (cameraPagesJson) {
+    }
+
+    if (cameraPagesJson) {
       const pages: { dataUrl: string; pageNumber: number }[] = JSON.parse(cameraPagesJson);
       if (pages.length > 0) {
         const imageBuffers: { buffer: Buffer; mimeType: string }[] = [];
@@ -104,13 +106,13 @@ export async function POST(req: NextRequest) {
           const base64Data = page.dataUrl.replace(/^data:image\/\w+;base64,/, '');
           const buffer = Buffer.from(base64Data, 'base64');
           const mimeType = page.dataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
-          const savedPage = saveBuffer(buffer, `page-${page.pageNumber}.jpg`, mimeType);
+          const savedPage = saveBuffer(buffer, `snapshot-page-${page.pageNumber}.jpg`, mimeType);
           await prisma.candidateFile.create({
             data: {
               candidateId: candidate.id,
               fileType: 'CAMERA_PAGE',
               storagePath: savedPage.storagePath,
-              fileName: `Scanned Page ${page.pageNumber}`,
+              fileName: `Camera Snapshot Page ${page.pageNumber}`,
               mimeType,
               fileSize: savedPage.fileSize,
               pageNumber: page.pageNumber,
@@ -121,13 +123,13 @@ export async function POST(req: NextRequest) {
           imageBuffers.push({ buffer, mimeType });
         }
         const pdfBuffer = await mergeImagesToPdf(imageBuffers);
-        const savedPdf = saveBuffer(pdfBuffer, `${candidateId}-resume.pdf`, 'application/pdf');
+        const savedPdf = saveBuffer(pdfBuffer, `${candidateId}-scanned-resume.pdf`, 'application/pdf');
         await prisma.candidateFile.create({
           data: {
             candidateId: candidate.id,
-            fileType: 'RESUME',
+            fileType: 'SCANNED_DOC',
             storagePath: savedPdf.storagePath,
-            fileName: `${candidateId}-resume.pdf`,
+            fileName: `${candidateId}-scanned-resume.pdf`,
             mimeType: 'application/pdf',
             fileSize: savedPdf.fileSize,
             uploadedById: defaultUploader.id,

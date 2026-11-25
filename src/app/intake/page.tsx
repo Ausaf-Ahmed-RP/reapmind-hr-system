@@ -18,6 +18,7 @@ import {
   Eye,
   Clock,
   UserCheck,
+  X,
 } from 'lucide-react';
 import CameraScannerModal from '@/components/CameraScannerModal';
 import Navbar from '@/components/Navbar';
@@ -131,14 +132,12 @@ export default function CandidateIntakePage() {
         return;
       }
       setResumeFile(file);
-      setCameraPages([]);
       setError(null);
     }
   };
 
   const handleCameraPagesSaved = (pages: { pageNumber: number; dataUrl: string }[]) => {
     setCameraPages(pages);
-    setResumeFile(null);
     setError(null);
   };
 
@@ -181,7 +180,8 @@ export default function CandidateIntakePage() {
 
       if (resumeFile) {
         formData.append('resumeFile', resumeFile);
-      } else if (cameraPages.length > 0) {
+      }
+      if (cameraPages.length > 0) {
         formData.append('cameraPages', JSON.stringify(cameraPages));
       }
 
@@ -432,50 +432,79 @@ export default function CandidateIntakePage() {
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label
-                  className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl cursor-pointer transition ${
-                    resumeFile
-                      ? 'border-emerald-500 bg-emerald-500/10'
-                      : 'border-white/[0.1] bg-black/40 hover:border-reapmind-blue/60 hover:bg-black/60'
-                  }`}
-                >
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    onChange={handleFileChange}
-                    className="sr-only"
-                  />
-                  <Upload
-                    className={`w-7 h-7 mb-2 ${resumeFile ? 'text-emerald-400' : 'text-neutral-400'}`}
-                  />
-                  <span className="text-sm font-semibold text-white truncate max-w-[240px]">
-                    {resumeFile ? resumeFile.name : 'Upload Resume File'}
-                  </span>
-                  <span className="text-xs text-neutral-500 mt-1">
-                    {resumeFile ? `${(resumeFile.size / 1024 / 1024).toFixed(2)} MB attached` : 'PDF, DOCX, JPG up to 10 MB'}
-                  </span>
-                </label>
+                <div className="relative">
+                  <label
+                    className={`w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl cursor-pointer transition ${
+                      resumeFile
+                        ? 'border-emerald-500 bg-emerald-500/10'
+                        : 'border-white/[0.1] bg-black/40 hover:border-reapmind-blue/60 hover:bg-black/60'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      onChange={handleFileChange}
+                      className="sr-only"
+                    />
+                    <Upload
+                      className={`w-7 h-7 mb-2 ${resumeFile ? 'text-emerald-400' : 'text-neutral-400'}`}
+                    />
+                    <span className="text-sm font-semibold text-white truncate max-w-[240px]">
+                      {resumeFile ? resumeFile.name : 'Upload Resume File'}
+                    </span>
+                    <span className="text-xs text-neutral-500 mt-1">
+                      {resumeFile ? `${(resumeFile.size / 1024 / 1024).toFixed(2)} MB attached` : 'PDF, DOCX, JPG up to 10 MB'}
+                    </span>
+                  </label>
+                  {resumeFile && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); setResumeFile(null); }}
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-neutral-800 text-neutral-300 hover:bg-rose-500 hover:text-white transition"
+                      title="Remove uploaded resume"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setIsCameraOpen(true)}
-                  className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl transition ${
-                    cameraPages.length > 0
-                      ? 'border-emerald-500 bg-emerald-500/10'
-                      : 'border-white/[0.1] bg-black/40 hover:border-reapmind-yellow/60 hover:bg-black/60'
-                  }`}
-                >
-                  <Camera
-                    className={`w-7 h-7 mb-2 ${cameraPages.length > 0 ? 'text-emerald-400' : 'text-reapmind-yellow'}`}
-                  />
-                  <span className="text-sm font-semibold text-white">Scan with Camera</span>
-                  <span className="text-xs text-neutral-500 mt-1">
-                    {cameraPages.length > 0
-                      ? `${cameraPages.length} pages captured & merged into PDF`
-                      : 'Webcam or tablet camera (multi-page)'}
-                  </span>
-                </button>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsCameraOpen(true)}
+                    className={`w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-2xl transition ${
+                      cameraPages.length > 0
+                        ? 'border-emerald-500 bg-emerald-500/10'
+                        : 'border-white/[0.1] bg-black/40 hover:border-reapmind-yellow/60 hover:bg-black/60'
+                    }`}
+                  >
+                    <Camera
+                      className={`w-7 h-7 mb-2 ${cameraPages.length > 0 ? 'text-emerald-400' : 'text-reapmind-yellow'}`}
+                    />
+                    <span className="text-sm font-semibold text-white">Scan with Camera</span>
+                    <span className="text-xs text-neutral-500 mt-1">
+                      {cameraPages.length > 0
+                        ? `${cameraPages.length} pages captured & merged into PDF`
+                        : 'Webcam or tablet camera (multi-page)'}
+                    </span>
+                  </button>
+                  {cameraPages.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); setCameraPages([]); }}
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-neutral-800 text-neutral-300 hover:bg-rose-500 hover:text-white transition"
+                      title="Remove camera scans"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
+              {resumeFile && cameraPages.length > 0 && (
+                <p className="mt-2 text-xs text-emerald-400 font-medium text-center">
+                  ✓ Both uploaded resume document & camera snapshot will be submitted together.
+                </p>
+              )}
             </div>
 
             {/* Consent Line */}

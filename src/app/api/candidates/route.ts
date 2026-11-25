@@ -197,7 +197,9 @@ export async function POST(req: NextRequest) {
           fileData: saved.buffer,
         },
       });
-    } else if (cameraPagesJson) {
+    }
+
+    if (cameraPagesJson) {
       // Handle multi-page camera scan INT-3
       const pages: { dataUrl: string; pageNumber: number }[] = JSON.parse(cameraPagesJson);
 
@@ -211,13 +213,13 @@ export async function POST(req: NextRequest) {
           const mimeType = page.dataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
 
           // Save original camera image
-          const savedPage = saveBuffer(buffer, `page-${page.pageNumber}.jpg`, mimeType);
+          const savedPage = saveBuffer(buffer, `snapshot-page-${page.pageNumber}.jpg`, mimeType);
           await prisma.candidateFile.create({
             data: {
               candidateId: candidate.id,
               fileType: 'CAMERA_PAGE',
               storagePath: savedPage.storagePath,
-              fileName: `Scanned Page ${page.pageNumber}`,
+              fileName: `Camera Snapshot Page ${page.pageNumber}`,
               mimeType,
               fileSize: savedPage.fileSize,
               pageNumber: page.pageNumber,
@@ -237,7 +239,7 @@ export async function POST(req: NextRequest) {
         await prisma.candidateFile.create({
           data: {
             candidateId: candidate.id,
-            fileType: 'RESUME',
+            fileType: 'SCANNED_DOC',
             storagePath: savedPdf.storagePath,
             fileName: `${candidateId}-scanned-resume.pdf`,
             mimeType: 'application/pdf',
